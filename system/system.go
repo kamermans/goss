@@ -96,6 +96,8 @@ func (sys *System) detectPackage(c *cli.Context) {
 // detectService adds the correct service creation function to a System struct
 func (sys *System) detectService() {
 	switch DetectService() {
+	case "runit":
+		sys.NewService = NewServiceRunit
 	case "upstart":
 		sys.NewService = NewServiceUpstart
 	case "systemd":
@@ -137,6 +139,9 @@ func DetectPackageManager() string {
 // command to detect systemd, and falls back on DetectDistro otherwise. If it can't
 // decide, it returns "init".
 func DetectService() string {
+	if HasCommand("sv") {
+		return "runit"
+	}
 	if HasCommand("systemctl") {
 		return "systemd"
 	}
